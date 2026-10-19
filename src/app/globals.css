@@ -1,25 +1,52 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+@theme {
+  --color-bg: #f4f6f9;
+  --color-surface: #ffffff;
+  --color-surface-alt: #eef1f6;
+  --color-border: #cbd2dc;
+  --color-border-strong: #7c8797;
+  --color-text: #18212f;
+  --color-muted: #566275;
+  --color-primary: #2447b5;
+  --color-primary-hover: #1b3a99;
+  --color-on-primary: #ffffff;
+  --color-primary-soft: #e3eafb;
+  --color-danger: #b42318;
+  --color-danger-soft: #fdecea;
+  --color-success: #0b6b3f;
+  --color-success-soft: #e4f4ea;
+  --color-warning: #8a5200;
+  --color-warning-soft: #fff4dc;
   --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --radius-card: 12px;
+  --shadow-card: 0 1px 2px rgb(24 33 47 / 0.08);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--color-bg);
+  color: var(--color-text);
   font-family: var(--font-sans);
+  line-height: 1.5;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+@keyframes va-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+@keyframes va-ring {
+  0% { transform: scale(1); opacity: 0.5; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+.va-dot { animation: va-pulse 1.2s infinite; }
+.va-ring { animation: va-ring 1.2s infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .va-dot, .va-ring, .animate-spin { animation: none !important; }
+  .va-ring { transform: scale(1.25); opacity: 0.3; }
 }
