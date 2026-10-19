@@ -1,0 +1,10 @@
+{
+  "contract_version": 1,
+  "plugin": {
+    "name": "agent-crew",
+    "version": "0.6.0"
+  },
+  "stack_profile": "auto",
+  "created_at": "2026-10-19T06:19:45Z",
+  "language": "ru"
+}
