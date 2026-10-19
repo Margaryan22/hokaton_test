@@ -49,4 +49,17 @@ test.describe("paraphrases", () => {
       expect(res.messages[1].text, text).not.toMatch(/не понял|ничего не нашла|ничего не нашёл/i);
     }
   });
+
+  test("search with verb aspect and past/future phrasing finds the record", async ({ request }) => {
+    await chat(request, "Напомни завтра в 10 позвонить стоматологу");
+    for (const text of [
+      "Когда я должен был звонить стоматологу?",
+      "Когда я должен позвонить стоматологу?",
+      "Что там про стоматолога",
+    ]) {
+      const res = await chat(request, text);
+      expect(JSON.stringify(res), text).toContain("стоматолог");
+      expect(res.messages[1].text, text).not.toMatch(/не понял|ничего не нашла|ничего не нашёл/i);
+    }
+  });
 });
