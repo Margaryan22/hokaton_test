@@ -1,4 +1,4 @@
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 import { RateLimiter } from "./rate-limit";
 
 test("allows up to max per window per key, then recovers", () => {
@@ -8,6 +8,27 @@ test("allows up to max per window per key, then recovers", () => {
   expect(limiter.allow("a", 20)).toBe(false);
   expect(limiter.allow("b", 20)).toBe(true);
   expect(limiter.allow("a", 1000)).toBe(true);
+});
+
+test("disabled limiter always allows", () => {
+  const limiter = new RateLimiter(1, 1000, 10_000, true);
+  for (let i = 0; i < 5; i++) expect(limiter.allow("a", 0)).toBe(true);
+});
+
+test("enabled explicitly still limits", () => {
+  const limiter = new RateLimiter(1, 1000, 10_000, false);
+  expect(limiter.allow("a", 0)).toBe(true);
+  expect(limiter.allow("a", 1)).toBe(false);
+});
+
+test("RATE_LIMIT_DISABLED=1 is read from the environment at load", async () => {
+  vi.stubEnv("RATE_LIMIT_DISABLED", "1");
+  vi.resetModules();
+  const mod = await import("./rate-limit");
+  const limiter = new mod.RateLimiter(1, 1000);
+  expect(limiter.allow("a", 0)).toBe(true);
+  expect(limiter.allow("a", 1)).toBe(true);
+  vi.unstubAllEnvs();
 });
 
 test("memory stays bounded", () => {
