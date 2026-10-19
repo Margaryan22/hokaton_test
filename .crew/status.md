@@ -1,8 +1,8 @@
 ---
-phase: final
-updated_at: "2026-10-19T13:59:47Z"
+phase: done
+updated_at: "2026-10-19T14:02:10Z"
 active_tasks: ["T-010"]
-summary: All 12 tasks done. Final verification.
+summary: "Прототип готов: 12/12 задач, 293 unit + 56/56 e2e, все AC выполнены; нужен деплой и ссылки в README"
 ---
 
 # Status
