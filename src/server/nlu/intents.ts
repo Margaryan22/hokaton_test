@@ -109,8 +109,6 @@ export function tenseOf(t: string): "past" | "future" | undefined {
   return undefined;
 }
 
-const MODAL_WORDS = new Set(["должен", "должна", "должны", "должно", "нужно", "надо", "буду", "будем"]);
-
 /** «когда» opens the question: «Когда я должен позвонить стоматологу?», «Когда мне нужно отправить отчет?». */
 function asksWhen(tokens: Token[]): boolean {
   const first = tokens.find((x) => !["а", "и", "ну", "скажи", "подскажи", "пожалуйста"].includes(x.t));

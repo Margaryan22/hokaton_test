@@ -3,6 +3,13 @@ import { DateTime } from "luxon";
 /** Every date the app reasons about is in Moscow time. */
 export const APP_ZONE = "Europe/Moscow";
 
+let warned = false;
+function warnOnce() {
+  if (warned) return;
+  warned = true;
+  console.warn("APP_NOW is ignored when VERCEL_ENV=production");
+}
+
 /**
  * The current moment in Europe/Moscow.
  * APP_NOW (ISO 8601 with offset, e.g. 2026-10-19T10:00:00+03:00) freezes it for tests and demos.
@@ -10,6 +17,10 @@ export const APP_ZONE = "Europe/Moscow";
  */
 export function now(env: Record<string, string | undefined> = process.env): DateTime {
   const fixed = env.APP_NOW?.trim();
+  if (fixed && env.VERCEL_ENV === "production") {
+    warnOnce();
+    return DateTime.now().setZone(APP_ZONE);
+  }
   if (fixed) {
     const parsed = DateTime.fromISO(fixed, { setZone: true });
     if (!parsed.isValid) {

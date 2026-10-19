@@ -1,5 +1,15 @@
-/** Read once at load: the e2e server sets RATE_LIMIT_DISABLED=1; production leaves it unset (limits on). */
-const DISABLED_BY_ENV = process.env.RATE_LIMIT_DISABLED === "1";
+/** RATE_LIMIT_DISABLED=1 turns limits off (e2e server only); it is ignored when VERCEL_ENV=production. */
+export function isRateLimitDisabled(env: Record<string, string | undefined>): boolean {
+  if (env.RATE_LIMIT_DISABLED !== "1") return false;
+  if (env.VERCEL_ENV === "production") {
+    console.warn("RATE_LIMIT_DISABLED is ignored when VERCEL_ENV=production");
+    return false;
+  }
+  return true;
+}
+
+/** Read once at load. */
+const DISABLED_BY_ENV = isRateLimitDisabled(process.env);
 
 /** Simple in-memory fixed-window limiter (security review M1). Per process, which is enough for a prototype. */
 export class RateLimiter {

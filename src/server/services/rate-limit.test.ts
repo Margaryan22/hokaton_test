@@ -1,5 +1,5 @@
 import { expect, test, vi } from "vitest";
-import { RateLimiter } from "./rate-limit";
+import { RateLimiter, isRateLimitDisabled } from "./rate-limit";
 
 test("allows up to max per window per key, then recovers", () => {
   const limiter = new RateLimiter(2, 1000);
@@ -34,4 +34,15 @@ test("RATE_LIMIT_DISABLED=1 is read from the environment at load", async () => {
 test("memory stays bounded", () => {
   const limiter = new RateLimiter(1, 1000, 3);
   for (let i = 0; i < 10; i++) expect(limiter.allow(`k${i}`, 0)).toBe(true);
+});
+
+test("RATE_LIMIT_DISABLED is honoured without VERCEL_ENV and ignored in production", () => {
+  const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+  expect(isRateLimitDisabled({ RATE_LIMIT_DISABLED: "1" })).toBe(true);
+  expect(isRateLimitDisabled({ RATE_LIMIT_DISABLED: "1", VERCEL_ENV: "preview" })).toBe(true);
+  expect(warn).not.toHaveBeenCalled();
+  expect(isRateLimitDisabled({ RATE_LIMIT_DISABLED: "1", VERCEL_ENV: "production" })).toBe(false);
+  expect(warn).toHaveBeenCalledTimes(1);
+  expect(isRateLimitDisabled({ VERCEL_ENV: "production" })).toBe(false);
+  warn.mockRestore();
 });
