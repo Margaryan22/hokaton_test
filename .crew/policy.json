@@ -1,0 +1,87 @@
+{
+  "zones": {
+    "frontend": [
+      "src/app/page.tsx",
+      "src/app/layout.tsx",
+      "src/app/globals.css",
+      "src/app/favicon.ico",
+      "src/components/**",
+      "src/client/**",
+      "public/**"
+    ],
+    "backend": [
+      "src/app/api/**",
+      "src/server/**",
+      "src/shared/**",
+      ".env"
+    ],
+    "db": [
+      "src/db/**",
+      "drizzle/**",
+      "drizzle.config.ts",
+      ".env"
+    ],
+    "qa": [
+      "e2e/**",
+      "playwright.config.ts"
+    ],
+    "architect": [
+      "package.json",
+      "package-lock.json",
+      "tsconfig.json",
+      "next.config.ts",
+      "eslint.config.mjs",
+      "vitest.config.ts",
+      "vercel.json",
+      ".env.example",
+      ".gitignore",
+      "README.md",
+      "CLAUDE.md",
+      "AGENTS.md",
+      "docs/**"
+    ]
+  },
+  "safeCommands": [
+    ["npm", "run"],
+    ["npm", "test"],
+    ["npm", "install"],
+    ["npm", "ci"],
+    ["npm", "ls"],
+    ["npm", "audit"],
+    ["npx", "vitest"],
+    ["npx", "playwright"],
+    ["npx", "eslint"],
+    ["npx", "tsc"],
+    ["npx", "next"],
+    ["npx", "drizzle-kit"],
+    ["npx", "tsx"]
+  ],
+  "packages": {
+    "allow": [
+      "@libsql/client",
+      "drizzle-orm",
+      "fastest-levenshtein",
+      "luxon",
+      "next",
+      "react",
+      "react-dom",
+      "snowball-stemmers",
+      "zod",
+      "@playwright/test",
+      "@tailwindcss/turbopack",
+      "@types/dom-speech-recognition",
+      "@types/luxon",
+      "@types/node",
+      "@types/react",
+      "@types/react-dom",
+      "@types/snowball-stemmers",
+      "drizzle-kit",
+      "eslint",
+      "eslint-config-next",
+      "tailwindcss",
+      "tsx",
+      "typescript",
+      "vitest"
+    ]
+  }
+}
