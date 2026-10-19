@@ -23,7 +23,7 @@
 - No CSS/XPath selectors tied to Tailwind classes.
 - Don't call real `DateTime.now()` in assertions — the server's clock is frozen at 2026-10-19 10:00 MSK.
 - Don't run e2e against `data/app.db` (prepare-db refuses non-e2e URLs).
-- Don't set `LLM_API_KEY` in any test run — AC-23 requires the keyless path.
+- No test may need an API key or network service — AC-23 requires the keyless path (ADR-007).
 
 ## Commands
 - `npm run test` · `npx vitest run src/server/nlu` · `npm run test:e2e` · `npx playwright test e2e/booking.spec.ts -g "AC-05"` · first time `npx playwright install chromium`.

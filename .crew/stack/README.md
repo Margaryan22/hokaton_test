@@ -51,7 +51,7 @@ Chosen in ADR-001 (`.crew/decisions/ADR-001-*.md`). Node.js >= 22.12 (developed 
 | `docs/source/**` | architect | input data (TZ, CSV) — read-only for everyone else |
 
 ## Conventions
-1. Layers: voice (browser, `src/client`) → HTTP (`src/app/api`) → understanding (`src/server/nlu`) → business logic (`src/server/services`) → storage (`src/db`). A layer imports only the layers to its right; `src/server/nlu` never touches the database.
+1. Layers (ADR-002, `docs/architecture.md#1-слои`): voice (browser, `src/client`) → HTTP (`src/app/api`) → dialog engine (`src/server/dialog`) → {NLU `src/server/nlu`, search `src/server/search`, services `src/server/services`} → storage (`src/db`). Imports: api → dialog → {nlu, search, services}; services → {db, search}; `nlu` and `search` are pure (no DB, no state); `src/db` never imports `src/server`.
 2. Every record query filters by `userId` taken from the session cookie on the server — never from the request body or a query string.
 3. "Now" is a parameter (`now: DateTime` in Europe/Moscow). Only route handlers call `now()` from `src/server/clock.ts`; `APP_NOW` freezes it for tests.
 4. Stored instants are UTC milliseconds; a task without time stores a date-only value (`YYYY-MM-DD`) — see `docs/architecture.md#data-model`.

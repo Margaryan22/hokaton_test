@@ -4,13 +4,14 @@
 - snowball-stemmers 0.6.0 (+ @types/snowball-stemmers 0.6.2), fastest-levenshtein 1.0.16. No paid API, no model download.
 - Snowball Russian algorithm: https://snowballstem.org/algorithms/russian/stemmer.html; package: https://github.com/mazko/jssnowball
 - fastest-levenshtein: https://github.com/ka-weihe/fastest-levenshtein
-- Optional LLM: only through `fetch`, see "Optional LLM" below. ADR-001.
+- No LLM (ADR-007).
 
 ## How we use it here
-- `src/server/nlu/` turns a Russian utterance + dialog context + `now` into a typed `Intent` (discriminated union: `create`, `list`, `search`, `update`, `complete`, `delete`, `confirm`, `choose`, `answer_time`, `unknown`). It never touches the database.
+- `src/server/nlu/` turns a Russian utterance + the expected answer kind (`expect`: `slot` | `yes_no` | `choice` | `target` | `null`, from the dialog state) + `now` into a typed `Intent` (discriminated union: `create`, `list`, `search`, `update`, `complete`, `delete`, `confirm`, `choose`, `slot`, `cancel`, `unknown`) — `parse(text, expect, now)`. It never touches the database. Slots, rule order and date rules: `docs/architecture.md#5-nlu-srcservernlu`.
 - Pipeline: `normalize(text)` → token list → intent detection by ordered rules (keyword/regex patterns) → slot extraction (kind, title, date, time, period, filters) → `Intent`. Each step is a pure function with its own test file.
 - Dates/times in phrases are extracted by `src/server/nlu/dates.ts` (rules for "завтра", "послезавтра", "в пятницу", "через два часа", "до конца недели", "на следующей неделе", "в 10 утра", "в 14:30", "26 января 2024"…) using Luxon (dates-luxon.md). Numbers in words ("два", "пятнадцать") are converted in `normalize`.
-- Search (`src/server/search/`): records of the current user are scored in memory (≈1000 rows — fast enough per request): tokens → stems → synonym expansion → match against stems of each record's text, with a small fuzzy bonus. Filters (kind, past/future relative to `now`) are applied before ranking. Ties → earlier date first; limit 5 (AC-10..AC-12).
+- Search (`src/server/search/`): records of the current user are scored in memory (≈1000 rows — fast enough per request): tokens → stems → synonym expansion → match against stems of each record's text, with a small fuzzy bonus. Filters (kind, past/future relative to `now`) are applied before ranking. Ties → earlier date first; limit 5 (AC-10..AC-12). Exact weights: ADR-005.
+- Stem equality alone is not enough: Snowball gives "иван"→"ива" but "иваном"→"иван". A term also matches when one token starts with the other's stem (stem ≥ 3 letters), weight 0.8 (ADR-005).
 
 ## Do
 - Normalise once (`normalize.ts`): `toLowerCase()`, `ё`→`е`, punctuation → space, collapse spaces. Stem **after** `ё`→`е` (the stemmer treats them differently: "отчёты"→"отчёт" but "отчеты"→"отчет").
@@ -34,8 +35,8 @@
 - Don't let the parser guess a meeting time; ask (AC-05). Don't ask about time for tasks (AC-02).
 - Don't mutate shared state in the parser — it must be deterministic for the same `(text, context, now)`.
 
-## Optional LLM
-- Only if `LLM_API_KEY` is set, and only as a fallback for `unknown` intents: call the provider with `fetch` (timeout 5 s), ask for the same `Intent` JSON, validate it with the Zod `IntentSchema`; on any error or invalid JSON fall back to `unknown`. Never required by any test; e2e and unit tests run with the key empty (AC-23). No SDK package.
+## No LLM
+- ADR-007: the optional LLM fallback is **not built**. No calls to any AI provider, no `LLM_API_KEY`. Unknown phrases → `unknown` (AC-13).
 
 ## Testing
 - Table-driven Vitest tests: `[phrase, expectedIntent]` for every AC phrase plus 2–3 paraphrases each, with `now = 2026-10-19T10:00 Europe/Moscow`.

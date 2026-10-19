@@ -6,7 +6,7 @@
 
 ## How we use it here
 - Request schemas live in `src/shared/schemas.ts` (backend owns; the client may import them for types). Route handlers `safeParse` the body/query; services receive typed data.
-- The LLM fallback output (if enabled) is validated with the same `IntentSchema`.
+- The dialog state read from `dialog_states.state_json` is validated with `DialogStateSchema` (ADR-003); invalid → reset to `idle`.
 
 ## Do
 - ```ts
