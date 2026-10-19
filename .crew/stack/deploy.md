@@ -6,7 +6,7 @@
 
 ## How it works
 - `vercel.json`: framework `nextjs`, region `fra1`, `buildCommand: npm run db:migrate && npm run db:seed && npm run build`. Migrations and the idempotent seed run against Turso on every deploy, so the hosted DB always matches `drizzle/`.
-- Env vars in Vercel (Production + Preview): `DATABASE_URL=libsql://<db>-<org>.turso.io`, `DATABASE_AUTH_TOKEN=<token>`. Never `APP_NOW` in production.
+- Env vars in Vercel (Production + Preview): `DATABASE_URL=libsql://<db>-<org>.turso.io`, `DATABASE_AUTH_TOKEN=<token>`. Never `APP_NOW` or `RATE_LIMIT_DISABLED` in production (the latter is e2e-only).
 - Data lives in Turso, so it survives cold starts and redeploys (AC-21). Serverless functions are stateless: **no module-level caches of user data or dialog state** — dialog context is stored in the database.
 - The owner must create the Vercel and Turso accounts (`.crew/access-checklist.md`); until then README documents the steps and everything is checked locally.
 

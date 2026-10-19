@@ -1,18 +1,19 @@
 ---
 phase: tasks
-updated_at: "2026-10-19T13:26:25Z"
-summary: "Готово 4 из 7: T-001 (схема БД), T-002 (DTO и NLU-парсер), T-003 (поиск), T-004 (сервисы записей и API). Далее T-005 и T-006. Эскалаций нет."
+updated_at: "2026-10-19T13:52:12Z"
+active_tasks: ["T-010"]
+summary: "Готово 8 из 11: T-001 схема БД, T-002 DTO и NLU-парсер, T-003 поиск, T-004 сервисы и API, T-005 диалог, T-006 главная страница, T-008 лимиты, T-009 фикс e2e-сервера. На проверке T-010 (qa). Далее T-007, T-011. Эскалаций нет."
 ---
 
 # Status
 
-Готово 4 из 7: T-001 (схема БД), T-002 (DTO и NLU-парсер), T-003 (поиск), T-004 (сервисы записей и API). Далее T-005 и T-006. Эскалаций нет.
+Готово 8 из 11: T-001 схема БД, T-002 DTO и NLU-парсер, T-003 поиск, T-004 сервисы и API, T-005 диалог, T-006 главная страница, T-008 лимиты, T-009 фикс e2e-сервера. На проверке T-010 (qa). Далее T-007, T-011. Эскалаций нет.
 
 ## Progress
-- Done: T-001 DB schema, repositories and CSV seed for «Демо»; T-002 Shared DTOs and Russian NLU parser; T-003 Search ranking and target resolution; T-004 Record services, session/users/records API
-- In review: none
-- Next: T-005 Dialog engine, replies and chat/dialog API (backend); T-006 Main page UI: switcher, dialog, voice, records (frontend)
-- Blocked: T-007 README, security headers, import boundary lint rule — waits for dependencies
+- Done: T-001 DB schema, repositories and CSV seed for «Демо»; T-002 Shared DTOs and Russian NLU parser; T-003 Search ranking and target resolution; T-004 Record services, session/users/records API; T-005 Dialog engine, replies and chat/dialog API; T-006 Main page UI: switcher, dialog, voice, records; T-008 Rate limits switchable for tests via RATE_LIMIT_DISABLED; T-009 Fix e2e dev server: HMR reload loop with NEXT_DIST_DIR
+- In review: T-010 NLU robustness: paraphrases from QA probes (qa)
+- Next: T-007 README, security headers, import boundary lint rule (architect); T-011 Visual polish from T-006 QA notes (frontend)
+- Blocked: none
 
 ## Spend
-Budget cap: none. Used: $9.2 (plugin estimate at API list prices), ~6572738 tokens estimated.
+Budget cap: none. Used: $13.09 (plugin estimate at API list prices), ~16334693 tokens estimated.
