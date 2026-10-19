@@ -13,3 +13,6 @@ Commit: 26e0e7b. Verdict: pass (no critical/high findings).
 - medium `src/server/services/rate-limit.ts:2`, `src/server/clock.ts:12`: `RATE_LIMIT_DISABLED` and `APP_NOW` are kept out of production only by the documentation. Possible fix: ignore them (or fail at start) when `VERCEL_ENV === "production"`.
 - low `next.config.ts:3`: there is no Content-Security-Policy. This is a known decision, and the README lists "CSP с nonce" as an improvement. The risk is low because React escapes output and the app loads no third-party content.
 - low `eslint.config.mjs:11`: the lint scope is a list of paths. A future `"use client"` file elsewhere under `src/app/**` would not be covered. A stronger option is `import "server-only"` in `src/db` and the server entry modules.
+
+## Follow-up
+- The medium finding (APP_NOW / RATE_LIMIT_DISABLED) was closed by T-012 (commit 8554508). Both flags are now ignored when `VERCEL_ENV=production`, and a warning is logged. Remaining low: Vercel preview deployments (`VERCEL_ENV=preview`) and self-hosted production without `VERCEL_ENV` still honour both flags. Vercel is the only deploy target and the flags are not set there.

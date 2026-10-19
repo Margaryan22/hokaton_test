@@ -1,8 +1,8 @@
 ---
-phase: tasks
-updated_at: "2026-10-19T13:52:12Z"
+phase: final
+updated_at: "2026-10-19T13:59:47Z"
 active_tasks: ["T-010"]
-summary: "Готово 8 из 11: T-001 схема БД, T-002 DTO и NLU-парсер, T-003 поиск, T-004 сервисы и API, T-005 диалог, T-006 главная страница, T-008 лимиты, T-009 фикс e2e-сервера. На проверке T-010 (qa). Далее T-007, T-011. Эскалаций нет."
+summary: All 12 tasks done. Final verification.
 ---
 
 # Status
