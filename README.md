@@ -35,7 +35,6 @@ npm run dev     # http://localhost:3000
 | `DATABASE_URL` | `file:./data/app.db` локально; `libsql://….turso.io` на хостинге |
 | `DATABASE_AUTH_TOKEN` | токен Turso (только для хостинга) |
 | `APP_NOW` | зафиксировать «сейчас», например `2026-10-19T10:00:00+03:00`; пусто — реальное время МСК |
-| `LLM_API_KEY`, `LLM_MODEL` | необязательное улучшение понимания; без них всё работает |
 
 ## Деплой (бесплатно: Vercel + Turso)
 
