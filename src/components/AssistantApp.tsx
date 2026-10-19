@@ -53,6 +53,7 @@ export function AssistantApp() {
   const [sendError, setSendError] = useState<string | null>(null);
   const [pendingIds, setPendingIds] = useState<ReadonlySet<number>>(new Set());
   const [flash, setFlash] = useState<string | null>(null);
+  const [highlightIds, setHighlightIds] = useState<ReadonlySet<number>>(new Set());
   const soundOn = useSyncExternalStore(subscribeSound, readSound, () => true);
   const soundRef = useRef(soundOn);
   useEffect(() => {
@@ -91,6 +92,24 @@ export function AssistantApp() {
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages, pendingText, phase]);
 
+  /** Marks rows that are new or changed compared with the current panel for 2 seconds. */
+  function highlight(ids: number[]) {
+    if (ids.length === 0) return;
+    setHighlightIds((prev) => new Set([...prev, ...ids]));
+    setTimeout(() => {
+      setHighlightIds((prev) => {
+        const rest = new Set(prev);
+        ids.forEach((id) => rest.delete(id));
+        return rest;
+      });
+    }, 2000);
+  }
+
+  function changedIds(next: Panel): number[] {
+    const before = new Map(panel.items.map((r) => [r.id, JSON.stringify(r)]));
+    return next.items.filter((r) => before.get(r.id) !== JSON.stringify(r)).map((r) => r.id);
+  }
+
   async function reload() {
     setPhase("loading");
     await loadAll();
@@ -119,6 +138,7 @@ export function AssistantApp() {
       const reply = await sendChat(text);
       setMessages((prev) => [...prev, ...reply.messages]);
       setAwaiting(reply.awaiting);
+      if (panel.title === reply.panel.title) highlight(changedIds(reply.panel));
       setPanel(reply.panel);
       setPanelError(null);
       if (soundRef.current) speak(reply.messages[1].text);
@@ -153,6 +173,7 @@ export function AssistantApp() {
     try {
       const { record: saved } = await setRecordDone(record.id, next);
       setPanel((prev) => ({ ...prev, items: prev.items.map((r) => (r.id === saved.id ? saved : r)) }));
+      highlight([saved.id]);
     } catch {
       setPanelError("Не удалось обновить запись");
     } finally {
@@ -220,16 +241,16 @@ export function AssistantApp() {
         </p>
       )}
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[3fr_2fr] lg:gap-6">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[3fr_2fr] lg:grid-rows-[auto_minmax(0,1fr)] lg:gap-6">
         <div className="lg:col-start-2 lg:row-start-1">
           <UserSwitcher users={users} user={user} disabled={loading} onSwitch={switchUser} />
         </div>
 
         <section
           aria-label="Диалог с ассистентом"
-          className={`${card} flex h-[min(60dvh,520px)] flex-col sm:h-[60dvh] lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:h-[calc(100dvh-200px)] lg:min-h-[480px]`}
+          className={`${card} flex h-[min(75dvh,600px)] flex-col sm:h-[60dvh] lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:h-[calc(100dvh-200px)] lg:min-h-[480px]`}
         >
-          <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto p-4">
+          <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto p-4 pt-6 [mask-image:linear-gradient(to_bottom,transparent,black_20px)]">
             <DialogFeed
               messages={messages}
               pendingText={pendingText}
@@ -248,12 +269,13 @@ export function AssistantApp() {
           />
         </section>
 
-        <div className="lg:col-start-2 lg:row-start-2">
+        <div className="lg:col-start-2 lg:row-start-2 lg:self-start">
           <RecordsPanel
             panel={panel}
             loading={loading}
             error={panelError}
             pendingIds={pendingIds}
+            highlightIds={highlightIds}
             onToggle={(r) => void toggleDone(r)}
             onRetry={() => void refreshPanel()}
           />

@@ -72,10 +72,10 @@ export function UserSwitcher({ users, user, disabled, onSwitch }: Props) {
         <label htmlFor="new-name" className="text-sm font-semibold">
           Новое имя
         </label>
-        <div className="flex flex-wrap gap-2 sm:flex-nowrap">
+        <div className="flex gap-2">
           <input
             id="new-name"
-            className={`${inputClass} ${error ? "border-danger" : ""}`}
+            className={`${inputClass} min-w-0 flex-1 ${error ? "border-danger" : ""}`}
             value={name}
             maxLength={40}
             autoComplete="off"
@@ -86,7 +86,7 @@ export function UserSwitcher({ users, user, disabled, onSwitch }: Props) {
           />
           <button
             type="submit"
-            className={`${btnSecondary} w-full sm:w-auto`}
+            className={`${btnSecondary} shrink-0`}
             disabled={disabled || busy || name.trim() === ""}
             aria-busy={busy}
           >

@@ -20,11 +20,12 @@ type Props = {
   loading: boolean;
   error: string | null;
   pendingIds: ReadonlySet<number>;
+  highlightIds: ReadonlySet<number>;
   onToggle: (record: RecordDto) => void;
   onRetry: () => void;
 };
 
-export function RecordsPanel({ panel, loading, error, pendingIds, onToggle, onRetry }: Props) {
+export function RecordsPanel({ panel, loading, error, pendingIds, highlightIds, onToggle, onRetry }: Props) {
   const now = today();
   const hiddenCount = panel.total > panel.items.length;
   return (
@@ -73,7 +74,7 @@ export function RecordsPanel({ panel, loading, error, pendingIds, onToggle, onRe
               return (
                 <li
                   key={record.id}
-                  className={`flex min-h-14 items-start gap-1 px-2 py-2 hover:bg-surface-alt ${pending ? "opacity-50" : ""}`}
+                  className={`flex min-h-14 items-start gap-1 px-2 py-2 transition-colors duration-700 motion-reduce:transition-none ${highlightIds.has(record.id) ? "bg-primary-soft" : "hover:bg-surface-alt"} ${pending ? "opacity-50" : ""}`}
                 >
                   <label className="flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center">
                     <input
