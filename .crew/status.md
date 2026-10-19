@@ -1,7 +1,7 @@
 ---
-phase: acceptance_tests
-updated_at: "2026-10-19T07:25:57Z"
-summary: Architecture + design done. QA writes acceptance tests.
+phase: decomposition
+updated_at: "2026-10-19T07:30:27Z"
+summary: Acceptance tests written (38 failing). Decomposing.
 ---
 
 # Status
