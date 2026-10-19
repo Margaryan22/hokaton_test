@@ -268,6 +268,10 @@ export function defaultDate(when: When, now: DateTime): When {
 const THIS_WEEK = new Set(["эту", "этой", "эта", "текущей", "текущую"]);
 const NEXT_WEEK = new Set(["следующей", "следующую", "следующая", "будущей", "будущую"]);
 
+const THIS_MONTH = new Set(["этом", "этот", "текущем", "текущий"]);
+const NEXT_MONTH = new Set(["следующем", "следующий", "будущем", "будущий"]);
+const PREVIOUS_MONTH = new Set(["прошлом", "прошлый"]);
+
 /** The period asked for by «Что у меня …»: a day, a week, the weekend. Without one the list is «Ближайшие». */
 export function extractPeriod(tokens: Token[], used: Set<number>, now: DateTime): Period | undefined {
   const monday = local(now).startOf("week");
@@ -288,6 +292,28 @@ export function extractPeriod(tokens: Token[], used: Set<number>, now: DateTime)
     used.add(i);
     if (i > 0) used.add(i - 1);
     return { from: isoDate(start), to: isoDate(start.plus({ weeks: 1 })), label };
+  }
+
+  for (let i = 0; i < tokens.length; i++) {
+    if (used.has(i) || !tokens[i]!.t.startsWith("месяц") || tokens[i]!.t === "месяцев") continue;
+    const modifier = tokens[i - 1]?.t ?? "";
+    const first = local(now).startOf("month");
+    let start: DateTime | undefined;
+    let label = "";
+    if (THIS_MONTH.has(modifier)) {
+      start = first;
+      label = "этот месяц";
+    } else if (NEXT_MONTH.has(modifier)) {
+      start = first.plus({ months: 1 });
+      label = "следующий месяц";
+    } else if (PREVIOUS_MONTH.has(modifier)) {
+      start = first.minus({ months: 1 });
+      label = "прошлый месяц";
+    }
+    if (!start) continue;
+    used.add(i);
+    used.add(i - 1);
+    return { from: isoDate(start), to: isoDate(start.plus({ months: 1 })), label };
   }
 
   const weekend = tokens.findIndex((tok, i) => !used.has(i) && tok.t.startsWith("выходн"));

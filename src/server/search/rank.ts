@@ -27,6 +27,17 @@ const W_PREFIX = 0.8;
 const W_SYNONYM = 0.6;
 const W_FUZZY = 0.4;
 const MIN_PREFIX = 3;
+const W_ASPECT = 0.9;
+
+/** Verb prefixes that only change the aspect: звонить/позвонить/созвониться, готовить/подготовить. */
+const VERB_PREFIXES = ["пере", "под", "при", "про", "раз", "по", "за", "со", "от", "до", "на", "вы", "у", "с"];
+const MIN_CORE = 4;
+
+/** The stem without an aspect prefix, when at least 4 letters stay. */
+function core(stemmed: string): string {
+  const prefix = VERB_PREFIXES.find((p) => stemmed.startsWith(p) && stemmed.length - p.length >= MIN_CORE);
+  return prefix ? stemmed.slice(prefix.length) : stemmed;
+}
 
 type Word = { raw: string; stem: string };
 
@@ -45,6 +56,11 @@ function wordScore(term: Word, token: Word): number {
     (token.stem.length >= MIN_PREFIX && term.raw.startsWith(token.stem))
   ) {
     return W_PREFIX;
+  }
+  const a = core(term.stem);
+  const b = core(token.stem);
+  if ((a !== term.stem || b !== token.stem) && a.length >= MIN_CORE && b.length >= MIN_CORE && (a === b || a.startsWith(b) || b.startsWith(a))) {
+    return W_ASPECT;
   }
   if (areSynonyms(term.stem, token.stem)) return W_SYNONYM;
   const limit = Math.min(fuzzyLimit(term.stem.length), fuzzyLimit(token.stem.length));

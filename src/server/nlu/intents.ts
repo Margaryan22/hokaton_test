@@ -76,9 +76,28 @@ export const isUpdate = (tokens: Token[]): boolean => hasVerb(tokens, UPDATE_IMP
 
 const isDoneWord = (t: string): boolean => startsWithAny(t, ["выполн", "сделан", "готов"]);
 
+/** «выполнена», «сделано», «завершена»: a participle saying the record is done. */
+const isDoneParticiple = (t: string): boolean => startsWithAny(t, ["выполнен", "сделан", "завершен", "закончен"]);
+
+/** Past-tense verbs of finishing something: «купил», «отправила», «сделал» (stem without the ending). */
+const DONE_VERB = /^(?:купил|отправил|сделал|выполнил|закончил|завершил|позвонил|подготовил|оплатил|написал|сдал|заказал|забронировал|согласовал|провел|подписал|закрыл|отдал|получил|сходил|съездил|приготовил|решил)(?:а|и)?$/u;
+const NOT_DONE_VERB = new Set(["был", "была", "было", "были"]);
+const DONE_FILLERS = new Set(["я", "мы", "уже", "только", "все", "наконец"]);
+
+/** Index of the past-tense verb in «Я купил билеты» / «Сделал отчет», when it opens the phrase (after «я/уже»). */
+function doneVerbIndex(tokens: Token[]): number | undefined {
+  const i = tokens.findIndex((x) => !DONE_FILLERS.has(x.t));
+  const verb = tokens[i];
+  if (!verb || NOT_DONE_VERB.has(verb.t) || !DONE_VERB.test(verb.t)) return undefined;
+  const asks = tokens.some((x) => ["когда", "что", "как", "какие", "какой", "ли"].includes(x.t));
+  return asks || isSearch(tokens) || isListMarker(tokens) ? undefined : i;
+}
+
 export function isComplete(tokens: Token[]): boolean {
   const marks = hasVerb(tokens, MARK_IMPERATIVE, MARK_INFINITIVE);
-  return (marks && tokens.some((x) => isDoneWord(x.t))) || hasVerb(tokens, FINISH_IMPERATIVE, FINISH_INFINITIVE);
+  if ((marks && tokens.some((x) => isDoneWord(x.t))) || hasVerb(tokens, FINISH_IMPERATIVE, FINISH_INFINITIVE)) return true;
+  if (tokens.some((x) => isDoneParticiple(x.t)) && !isSearch(tokens) && !isListMarker(tokens)) return true;
+  return doneVerbIndex(tokens) !== undefined && tokens.length > (doneVerbIndex(tokens) ?? 0) + 1;
 }
 
 const PAST_WORDS = new Set(["был", "была", "было", "были", "прошлой", "прошлую", "раньше"]);
@@ -90,10 +109,34 @@ export function tenseOf(t: string): "past" | "future" | undefined {
   return undefined;
 }
 
+const MODAL_WORDS = new Set(["должен", "должна", "должны", "должно", "нужно", "надо", "буду", "будем"]);
+
+/** «когда» opens the question: «Когда я должен позвонить стоматологу?», «Когда мне нужно отправить отчет?». */
+function asksWhen(tokens: Token[]): boolean {
+  const first = tokens.find((x) => !["а", "и", "ну", "скажи", "подскажи", "пожалуйста"].includes(x.t));
+  return first?.t === "когда" && tokens.some((x) => x.t !== "когда" && !isStopWord(x.t));
+}
+
+/** «Что там про договор», «Что у меня про стоматолога»: a topic after «про/о/об» with words behind it. */
+function asksAboutTopic(tokens: Token[]): boolean {
+  if (tokens[0]?.t !== "что") return false;
+  const at = tokens.findIndex((x) => ["про", "о", "об"].includes(x.t));
+  if (at < 1 || tokens.slice(1, at).some((x) => !["там", "у", "меня", "нас", "мне", "было", "есть", "тут"].includes(x.t))) return false;
+  return tokens.slice(at + 1).some((x) => !isStopWord(x.t));
+}
+
 export function isSearch(tokens: Token[]): boolean {
   if (tokens.some((x) => isSearchVerb(x.t))) return true;
+  if (asksWhen(tokens) || asksAboutTopic(tokens)) return true;
   const hasWhen = tokens.some((x) => x.t === "когда");
   return hasWhen && tokens.some((x) => tenseOf(x.t) !== undefined || kindOfWord(x.t) !== undefined);
+}
+
+/** Tense of a search: a past word wins; «должен (был) позвонить» has none (undated records have no tense, ADR-005). */
+export function searchTense(tokens: Token[]): "past" | "future" | undefined {
+  if (tokens.some((x) => x.t.startsWith("долж"))) return undefined;
+  const tenses = tokens.map((x) => tenseOf(x.t));
+  return tenses.includes("past") ? "past" : tenses.includes("future") ? "future" : undefined;
 }
 
 const LIST_AFTER_WHAT = new Set(["у", "на", "запланировано", "было", "будет", "есть", "по", "в", "со", "сегодня", "завтра", "послезавтра", "нужно", "надо"]);
@@ -108,7 +151,7 @@ export function isListMarker(tokens: Token[]): boolean {
     if (t === "что") return LIST_AFTER_WHAT.has(tokens[i + 1]?.t ?? "");
     if (t === "есть") return tokens[i + 1]?.t === "ли";
     if (WHICH_WORDS.includes(t)) return asksAboutPlans;
-    return startsWithAny(t, ["покаж", "выведи", "планы", "расписан", "список"]) || t === "запланировано";
+    return startsWithAny(t, ["покаж", "выведи", "планы", "расписан", "список", "планировал"]) || t === "запланировано";
   });
 }
 
@@ -138,6 +181,7 @@ export const STOP_WORDS = new Set([
   "есть", "пожалуйста", "нужно", "надо", "покажи", "показать",
   "удали", "удалить", "убери", "убрать", "сотри", "отметь", "отметить", "пометь", "выполненной", "выполненную", "выполненным",
   "перенеси", "перенести", "передвинь", "сдвинь", "измени", "время", "дату",
+  "все", "всех", "всем", "там", "тут", "должен", "должна", "должны", "должно", "буду", "будем", "мы", "нас", "нам",
 ]);
 
 export function isStopWord(t: string): boolean {
@@ -146,6 +190,8 @@ export function isStopWord(t: string): boolean {
     t.startsWith("ставил") ||
     t.startsWith("выполн") ||
     t.startsWith("сделан") ||
+    t.startsWith("завершен") ||
+    t.startsWith("закончен") ||
     UPDATE_IMPERATIVE.has(t) ||
     UPDATE_INFINITIVE.has(t) ||
     MARK_IMPERATIVE.has(t) ||

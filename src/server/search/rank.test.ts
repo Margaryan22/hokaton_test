@@ -153,3 +153,57 @@ describe("AC-17: resolveTargets", () => {
     expect(byId.get(found[0]!.id)).toBeDefined();
   });
 });
+
+describe("T-010: verb aspect and paraphrases (QA probes)", () => {
+  const rec = (id: number, kind: SearchableRecord["kind"], title: string): SearchableRecord => ({ id, kind, title, dueDate: null, startsAt: null });
+  const POOL = [
+    rec(9001, "task", "Позвонить стоматологу"),
+    rec(9002, "task", "Подготовить презентацию"),
+    rec(9003, "task", "Отправить отчет"),
+    rec(9004, "meeting", "Созвон с клиентом"),
+    rec(9005, "task", "Купить билеты"),
+    rec(9006, "task", "Купить молоко"),
+    rec(9007, "task", "Подписать договор"),
+  ];
+  const find = (phrase: string) => {
+    const intent = parse(phrase, null, NOW);
+    if (intent.type !== "search") throw new Error(`not a search: ${phrase} -> ${intent.type}`);
+    return searchRecords(POOL, intent, NOW).items.map((r) => r.id);
+  };
+
+  it.each([
+    ["Когда я должен был звонить стоматологу?", 9001],
+    ["Когда я должен позвонить стоматологу?", 9001],
+    ["Что там про стоматолога", 9001],
+    ["Что у меня про договор?", 9007],
+    ["Когда мне нужно готовить презентацию?", 9002],
+    ["Когда я должен был отправлять отчет?", 9003],
+    ["Когда я созванивался с клиентом?", 9004],
+  ])("%s", (phrase, id) => {
+    expect(find(phrase)[0]).toBe(id);
+  });
+
+  it("aspect pairs match: звонить/позвонить/созвониться, готовить/подготовить", () => {
+    const one = (term: string, title: string) => searchRecords([rec(1, "task", title)], { terms: [term] }, NOW).total;
+    expect(one("звонить", "Позвонить Ивану")).toBe(1);
+    expect(one("позвонить", "Звонить Ивану")).toBe(1);
+    expect(one("созвониться", "Звонить Ивану")).toBe(1);
+    expect(one("готовить", "Подготовить отчет")).toBe(1);
+    expect(one("отправлять", "Отправить отчет")).toBe(1);
+    expect(one("сделать", "Делать зарядку")).toBe(1);
+    expect(one("звонить", "Договор с поставщиком")).toBe(0);
+  });
+
+  it("resolves «я купил билеты» to the record «Купить билеты»", () => {
+    const intent = parse("Я купил билеты", null, NOW);
+    if (intent.type !== "complete" || !("terms" in intent.target)) throw new Error("not complete");
+    expect(resolveTargets(POOL, intent.target).map((r) => r.id)).toEqual([9005]);
+  });
+
+  it("«найди все встречи с Иваном» does not search for «все»", () => {
+    const intent = parse("Найди все встречи с Иваном", null, NOW);
+    if (intent.type !== "search") throw new Error("not a search");
+    const withIvan = [rec(1, "meeting", "Встреча с Иваном"), rec(2, "meeting", "Встреча с Петром")];
+    expect(searchRecords(withIvan, intent, NOW).items.map((r) => r.id)).toEqual([1]);
+  });
+});

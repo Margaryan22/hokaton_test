@@ -11,6 +11,7 @@ import {
   isListMarker,
   isSearch,
   isStopWord,
+  searchTense,
   isUpdate,
   kindOfWord,
   matchCancel,
@@ -111,7 +112,7 @@ function parseList(tokens: Token[], now: DateTime): Intent {
 
 function parseSearch(tokens: Token[]): Intent {
   const kind = firstKindWord(tokens)?.kind;
-  const tense = tokens.map((x) => tenseOf(x.t)).find((x) => x !== undefined);
+  const tense = searchTense(tokens);
   const terms = tokens.filter((x) => !isStopWord(x.t) && !isKindFilterWord(x.t) && tenseOf(x.t) === undefined).map((x) => x.t);
   const intent: Extract<Intent, { type: "search" }> = { type: "search", terms };
   if (kind) intent.kind = kind;

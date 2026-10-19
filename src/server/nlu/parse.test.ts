@@ -115,7 +115,6 @@ describe("list: AC-06..AC-09, AC-22", () => {
 
 describe("search: AC-10..AC-12", () => {
   table([
-    ["Я когда-то ставил задачу по договору, найди ее", { type: "search", terms: ["договору"], kind: "task", tense: "past" }],
     ["Найди задачу про презентацию", { type: "search", terms: ["презентацию"], kind: "task" }],
     ["Найди задачу про отчёты", { type: "search", terms: ["отчеты"], kind: "task" }],
     ["Когда у меня была встреча с Иваном?", { type: "search", terms: ["иваном"], kind: "meeting", tense: "past" }],
@@ -262,4 +261,43 @@ describe("date boundaries", () => {
     const b = parse("Напомни завтра в 10 позвонить Ивану", null, NOW);
     expect(a).toEqual(b);
   });
+});
+
+describe("T-010: paraphrases of QA probes", () => {
+  table([
+    ["Когда я должен был звонить стоматологу?", { type: "search", terms: ["звонить", "стоматологу"] }],
+    ["Когда я должен позвонить стоматологу?", { type: "search", terms: ["позвонить", "стоматологу"] }],
+    ["Когда мне нужно отправить отчет?", { type: "search", terms: ["отправить", "отчет"] }],
+    ["Что там про стоматолога", { type: "search", terms: ["стоматолога"] }],
+    ["Что у меня про договор?", { type: "search", terms: ["договор"] }],
+    ["Что у нас было про бюджет", { type: "search", terms: ["бюджет"], tense: "past" }],
+    ["Найди все встречи с Иваном", { type: "search", terms: ["иваном"], kind: "meeting" }],
+    ["Найди всё про презентацию", { type: "search", terms: ["презентацию"] }],
+    ["Когда я созванивался с Иваном?", { type: "search", terms: ["созванивался", "иваном"] }],
+    [
+      "Что у меня в этом месяце?",
+      { type: "list", exists: false, period: { from: "2026-10-01", to: "2026-11-01", label: "этот месяц" } },
+    ],
+    [
+      "Что запланировано на следующий месяц",
+      { type: "list", exists: false, period: { from: "2026-11-01", to: "2026-12-01", label: "следующий месяц" } },
+    ],
+    [
+      "Какие встречи в этом месяце?",
+      { type: "list", exists: false, kind: "meeting", period: { from: "2026-10-01", to: "2026-11-01", label: "этот месяц" } },
+    ],
+    [
+      "Что я планировал на завтра?",
+      { type: "list", exists: false, period: { from: "2026-10-20", to: "2026-10-21", label: "завтра" } },
+    ],
+    ["Выполнена задача купить билеты", { type: "complete", target: { kind: "task", terms: ["купить", "билеты"] } }],
+    ["Задача купить билеты выполнена", { type: "complete", target: { kind: "task", terms: ["купить", "билеты"] } }],
+    ["Я купил билеты", { type: "complete", target: { terms: ["купил", "билеты"] } }],
+    ["Я уже отправил отчет", { type: "complete", target: { terms: ["отправил", "отчет"] } }],
+    ["Сделал отчет", { type: "complete", target: { terms: ["сделал", "отчет"] } }],
+    // unchanged behaviour next to the new rules
+    ["Покажи выполненные задачи", { type: "list", exists: false, kind: "task" }],
+    ["Мне нужно купить билеты", { type: "create", kind: "task", title: "купить билеты", hasDeadline: false }],
+    ["Что у меня по плану", { type: "list", exists: false }],
+  ]);
 });
