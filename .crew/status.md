@@ -1,19 +1,18 @@
 ---
 phase: tasks
-updated_at: "2026-10-19T13:20:39Z"
-active_tasks: ["T-002"]
-summary: "Готово 1 из 7: T-001 (схема БД, репозитории, CSV-посев). T-002 на проверке у security. Ждут зависимостей T-003..T-007. Эскалаций нет."
+updated_at: "2026-10-19T13:21:24Z"
+summary: "Готово 2 из 7: T-001 (схема БД, репозитории, CSV-посев), T-002 (DTO и NLU-парсер). Далее T-003 и T-004. Эскалаций нет."
 ---
 
 # Status
 
-Готово 1 из 7: T-001 (схема БД, репозитории, CSV-посев). T-002 на проверке у security. Ждут зависимостей T-003..T-007. Эскалаций нет.
+Готово 2 из 7: T-001 (схема БД, репозитории, CSV-посев), T-002 (DTO и NLU-парсер). Далее T-003 и T-004. Эскалаций нет.
 
 ## Progress
-- Done: T-001 DB schema, repositories and CSV seed for «Демо»
-- In review: T-002 Shared DTOs and Russian NLU parser (security)
-- Next: T-003 Search ranking and target resolution (after T-002); T-004 Record services, session/users/records API (after T-002)
-- Blocked: none
+- Done: T-001 DB schema, repositories and CSV seed for «Демо»; T-002 Shared DTOs and Russian NLU parser
+- In review: none
+- Next: T-003 Search ranking and target resolution; T-004 Record services, session/users/records API
+- Blocked: T-005, T-006, T-007 wait for dependencies
 
 ## Spend
-Budget cap: none. Used: $7.64 (estimate), ~3997501 tokens.
+Budget cap: none. Used: $7.85 (plugin estimate at API list prices), ~4318542 tokens estimated.

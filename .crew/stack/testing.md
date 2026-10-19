@@ -23,6 +23,7 @@
 - No CSS/XPath selectors tied to Tailwind classes.
 - Don't call real `DateTime.now()` in assertions — the server's clock is frozen at 2026-10-19 10:00 MSK.
 - Don't run e2e against `data/app.db` (prepare-db refuses non-e2e URLs).
+- Don't start ad-hoc dev servers with a custom distDir (e.g. `NEXT_DIST_DIR=.next-qa4 next dev`): Next.js rewrites `tsconfig.json` `include` for it — use `npm run test:e2e` (its `.next-e2e` is already listed), or restore `tsconfig.json` afterwards (`git diff tsconfig.json` must be empty).
 - No test may need an API key or network service — AC-23 requires the keyless path (ADR-007).
 
 ## Commands
