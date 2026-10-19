@@ -19,7 +19,9 @@
                                 └──────────────────────────────────────────────────────────┘
 ```
 
-Правило импорта (ADR-002): api → dialog → {nlu, search, services, replies}; services → {db, search}; `nlu` и `search` чистые (только `src/shared`, luxon, snowball-stemmers, fastest-levenshtein); `src/db` не импортирует `src/server`; клиент импортирует только `src/shared` и `src/client`.
+Четыре слоя из ТЗ: **голос** — `src/client/speech` (Web Speech API в браузере); **понимание запроса** — `src/server/nlu` (правила, даты) и `src/server/search` (ранжирование); **бизнес-логика** — `src/server/dialog` (автомат уточнений, подтверждения, контекст) и `src/server/services` (записи, конфликты встреч, лимит запросов); **хранение** — `src/db` (Drizzle + libSQL/Turso). HTTP-слой `src/app/api` только связывает их.
+
+Правило импорта (ADR-002): api → dialog → {nlu, search, services, replies}; services → {db, search}; `nlu` и `search` чистые (только `src/shared`, luxon, snowball-stemmers, fastest-levenshtein); `src/db` не импортирует `src/server`; клиент импортирует только `src/shared` и `src/client` (закреплено ESLint `no-restricted-imports` в `eslint.config.mjs`).
 
 ## 2. Модель данных
 
