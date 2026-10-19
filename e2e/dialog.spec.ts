@@ -9,7 +9,7 @@ test("AC-13 unrecognised phrase: nothing is saved, assistant says it did not und
   const examples = text.match(/«[^»]+»/g) ?? [];
   expect(examples.length).toBeGreaterThanOrEqual(2);
   expect(examples.length).toBeLessThanOrEqual(3);
-  await expect(feed(page)).toContainText("не понял");
+  await expect(feed(page)).toContainText(/не понял/i);
   expect((await recordsPanel(page.request)).items).toHaveLength(0);
 });
 
